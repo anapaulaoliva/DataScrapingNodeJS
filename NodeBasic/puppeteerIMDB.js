@@ -6,7 +6,7 @@ const puppeteer = require('puppeteer');
 
     //puppeteer library
     //initialize browser
-    let browser = await puppeteer.launch();
+    let browser = await puppeteer.launch({headless:false});
     let page = await browser.newPage();
 
     //making sure everything has loaded before scraping - telling the browser the navigation loading is finished
