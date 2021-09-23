@@ -1,14 +1,13 @@
-// Kindacode.com
 const got = require('got');
 const cheerio = require('cheerio');
 const { link } = require('fs');
 const PAGE_URLS = [];
 let url;
 
-const extractLinks = async (PAGE_URLS, url) => {
+const extractLinks = async (PAGE_URLS, url, pages) => {
 
     try {
-        for(let i=0; i<=3; i++){
+        for(let i=0; i<=pages; i++){
             url = 'https://upenn.technologypublisher.com/searchresults.aspx?q=&page='+i+'&sort=datecreated&order=desc';
         
             // Fetching HTML
@@ -47,7 +46,7 @@ const filterLinks = (linksArr) => {
     return linksArr.filter(element => element.match(regEx));
 }
 
-extractLinks(PAGE_URLS, url);
+extractLinks(PAGE_URLS, url, 5);
 
 
 
