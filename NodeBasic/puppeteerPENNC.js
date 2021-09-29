@@ -1,72 +1,51 @@
-//dynamic pages
+//high-level API to control Chrome or Chromium over the DevTools Protocol
+/* Use the keyword 'require' to import modules and assign it to a constant or variable
+https://www.freecodecamp.org/news/requiring-modules-in-node-js-everything-you-need-to-know-e7fbd119be8/
+ To use third-party modules such as puppeteer, they must be installed locally (e.g. 'npm i puppeteer')
+ If a package.json exists, all dependencies can be installed with 'npm install'
+*/
 const puppeteer = require('puppeteer');
 
-(async () => {
-    const TEST_URLS = [
-        'https://upenn.technologypublisher.com/technology/44262',
-        'https://upenn.technologypublisher.com/technology/44237',
-        'https://upenn.technologypublisher.com/technology/44818', 
-        'https://upenn.technologypublisher.com/technology/44814',
-        'https://upenn.technologypublisher.com/technology/44234', 
-        'https://upenn.technologypublisher.com/technology/44057',
-        'https://upenn.technologypublisher.com/technology/43801' 
-    ];
+const scraper = async(testLinks) => {
     let scraping_data = [];
-    for(let i=0; i<=6; i++){
-        let URL = TEST_URLS[i];
-
+    for (let i = 0; i <= 6; i++) {
+        let URL = `https://upenn.technologypublisher.com${testLinks[i]}`;
         //initialize browser & puppeteer library
-        //headless to open the browser
-        const browser = await puppeteer.launch({headless:false, /*slowMo: 250,*/ defaultViewport: null/*, devtools:true*/});
+        const browser = await puppeteer.launch({ headless: false });
         //redirect steps here
         const page = await browser.newPage();
         //making sure everything has loaded before scraping - telling the browser the navigation loading is finished
         await page.goto(URL, { waitUntil: 'networkidle0' });
 
-        
-        //page.waitForNavigation  
-        //await page.waitForSelector(() => document.querySelector('#main-content'));
-        //await page.waitForXPath('//*[@id="formTechPub1"]/div');
-        //like opening devtools console
-
-	//  ------------- Article data
+        //  ------------- Article data
         let data = await page.evaluate(() => {
-        //declaring elements variables
+            //  ------------- Add Title
+            let title = document.querySelector("#formTechPub1 > div > table > tbody > tr > td:nth-child(1) > h1").innerHTML;
+            //  ------------- Add URL
+            let url = document.querySelector("#formTechPub1 > div > table > tbody > tr > td:nth-child(1) > div.c_tp_direct_link > a").innerText
+            //  ------------- Add Keywords
 
-	//  ------------- Add Title
-        let title = document.querySelector("#formTechPub1 > div > table > tbody > tr > td:nth-child(1) > h1").innerHTML;
-    //  ------------- Add URL
-        let url = document.querySelector("#formTechPub1 > div > table > tbody > tr > td:nth-child(1) > div.c_tp_direct_link > a").innerText    //  ------------- Add Title
-
-        return {
-            'title': title,
-            //'articleURL': URL
-        }
+            return {
+                'title': title,
+                'articleURL': url
+            }
         });
         scraping_data.push(data);
         await browser.close();
-
     }
-     // print data object
+    // print data object
     console.log(scraping_data);
+
     //set a simple debugger to inspect data
-    debugger;
+    //debugger;
 
     //close browser
     //await browser.close();
-})();
+};
 
-
-//$ npm i progress
-var ProgressBar = require('progress');
-const { add } = require('cheerio/lib/api/traversing');
-
-var bar = new ProgressBar(':bar :current/:total', { total: 10 });
-var timer = setInterval(function () {
-bar.tick();
-    if (bar.complete) {
-        clearInterval(timer);
-    } else if (bar.curr === 5) {
-        bar.interrupt('this message appears above the progress bar\ncurrent progress is ' + bar.curr + '/' + bar.total);
-    }
-}, 1000);
+/* 
+Modules need to be exported so they can be imported using the 'require' keyword
+1· https://www.tutorialsteacher.com/nodejs/nodejs-module-exports
+2· https://stackoverflow.com/questions/16631064/declare-multiple-module-exports-in-node-js#16631079
+*/
+module.exports = scraper;
